@@ -1,0 +1,13 @@
+#currentItem {
+    max-width: 500px;
+}
+
+#dropMenu .list-group {
+    max-width: 500px!important;
+    width: 500px!important;
+}
+
+.search-list {
+    max-width: 500px!important;
+    width: 500px!important;
+}

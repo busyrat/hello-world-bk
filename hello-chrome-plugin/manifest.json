@@ -21,6 +21,12 @@
 				"content-script.js"
 			],
 			"css": ["content.css"]
+		}, {
+			"matches": [
+				"https://fpizentao.5upm.com/*"
+			],
+			"css": ["fpizentao.css"],
+			"js": ["fpizentao.js"]
 		}
 	],
 	"web_accessible_resources": [
