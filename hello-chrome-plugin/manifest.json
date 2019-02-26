@@ -23,10 +23,13 @@
 			"css": ["content.css"]
 		}, {
 			"matches": [
-				"https://fpizentao.5upm.com/*"
+				"https://fpizentao.5upm.com/*",
+				"https://git.fpi-inc.site/*",
+				"http://yapi.fpi-inc.site/*",
+				"http://pd.fpi-inc.site/*"
 			],
-			"css": ["fpizentao.css"],
-			"js": ["fpizentao.js"]
+			"css": ["fpi.css"],
+			"js": ["fpi.js"]
 		}
 	],
 	"web_accessible_resources": [
