@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+
+<body>
+    <div id="app"></div>
+</body>
+<script>
+
+    function Vue(options) {
+        this.$el = options.el
+        this.$template = options.template
+        this.$data = options.data
+        this.$$data = options.data()
+
+        this.init()
+    }
+
+    function Observable(node, propName, data) {
+        this.$node = node
+        this.$propName = propName
+        this.$data = data
+    }
+
+    function Observer() {
+        this.observables = []
+    }
+
+    Observer.prototype.notify = function () {
+        for (let i = 0; i < this.observables.length; i++) {
+            this.observables[i].update()
+        }
+    }
+
+    Observer.prototype.subscribe = function () {
+        this.observables.push(Observer.target)
+    }
+
+    Observable.prototype.update = function () {
+        if (this.$node.nodeType === 1) {
+            this.$node.value = this.$data[this.$propName]
+        } else if (this.$node.nodeType === 3) {
+            this.$node.nodeValue = this.$data[this.$propName]
+        }
+    }
+
+    Vue.prototype.init = function () {
+        // 监听所有的数据
+        this.defineReactive(this.$$data, this.$$data.text)
+
+        this.compiler(this.$template, this.$$data)
+    }
+
+    Vue.prototype.compiler = function (templateStr, data) {
+        let box = document.querySelector(this.$el)
+        box.innerHTML = templateStr
+
+        let nodes = box.children[0].childNodes
+
+        let regexText = /.*\{\{(.*)\}\}.*/
+        let regexV = /^v-(.*)/
+
+        for (let i = 0; i < nodes.length; i++) {
+            let node = nodes[i]
+            if (node.nodeType === 3) {
+                // 文本节点
+                let result = regexText.exec(node.nodeValue)
+                if (result) {
+                    this.textMatch(result[1].trim(), node)
+                }
+            } else if (node.nodeType === 1) {
+                let nodeAttrs = node.attributes
+                for (let j = 0; j < nodeAttrs.length; j++) {
+                    let attr = nodeAttrs[j]
+                    let result = regexV.exec(attr.name)
+                    if (result) {
+                        console.log(attr.name, attr.value)
+                        this.redirective[result[1]](attr.value, node, this.$$data)
+                    }
+               
+                }
+            }
+            
+        }
+    }
+
+    Vue.prototype.redirective = {
+        model: function (propName, node, data) {
+
+            Observer.target = new Observable(node, propName, data)
+
+            node.value = data[propName]
+
+            node.addEventListener('input',  (e) => {
+                data[propName] = e.target.value
+            })
+        }
+    }
+
+    Vue.prototype.textMatch = function (propName, node) {
+
+        Observer.target = new Observable(node, propName, this.$$data)
+
+        node.nodeValue = this.$$data[propName]
+    }
+
+    Vue.prototype.defineReactive = function (obj, value) {
+        for(let key in obj) {
+
+            let observer = new Observer()
+
+            Object.defineProperty(obj, key, {
+                set: function (v) {
+                    console.log('set')
+                    value = v
+                    observer.notify()
+                },
+                get: function () {
+                    console.log('get')
+                    if (Observer.target) {
+                        observer.subscribe()
+                        Observer.target = null
+                    }
+                    return value
+                }
+            })
+        }
+    }
+
+    let v = new Vue ({
+        el: '#app',
+        data() {
+            return {
+                text: 'abc'
+            }
+        },
+        template: `
+            <div>
+                <input type="text" v-model="text">
+                {{text}}
+            </div>
+        `
+    })
+
+</script>
+</html>
