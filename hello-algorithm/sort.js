@@ -39,7 +39,26 @@ function quickSort(arr) {
   return quickSort(left).concat(current, quickSort(right))
 }
 
-function quickSort1(arr) {}
+function quickSortFlag(arr, low = 0, high = arr.length - 1) {
+  if (low >= high) return
+  let left = low
+  let right = high
+  let flag = arr[left]
+  while (left < right) {
+    if (left < right && flag <= arr[right]) {
+      right--
+    }
+    arr[left] = arr[right]
+    if (left < right && flag >= arr[left]) {
+      left++
+    }
+    arr[right] = arr[left]
+  }
+  arr[left] = flag
+  quickSortFlag(arr, low, left - 1)
+  quickSortFlag(arr, left + 1, high)
+  return arr
+}
 
 function test(fn) {
   function assert(arr, expect) {
@@ -57,3 +76,4 @@ function test(fn) {
 test(bubbleSSort)
 test(insertSort)
 test(quickSort)
+test(quickSortFlag)
